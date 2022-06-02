@@ -1,0 +1,109 @@
+---
+title: "Writing checks in Rmd files."
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Writing checks in Rmd files.}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Preface
+
+Rmarkdown reports can be parameterised using the yaml header. The simple way is 
+
+```yaml
+---
+title: My Document
+output: html_document
+params:
+  fruit: Apple
+---
+```
+
+Alternatively,  values can be declared using a `value` subitem like so:
+
+```yaml
+---
+title: My Document
+output: html_document
+params:
+  fruit: 
+    value: Apple
+---
+```
+
+Additional arbitrary subitems are also allowed. This is used for [customizing the interactive user interface](https://bookdown.org/yihui/rmarkdown/params-knit.html)
+
+
+In this package, we use this feature to declare a `check` subitems to declare test functions:
+
+## Writing `check` functions
+
+### `check` functions must evaluate to `TRUE` or `FALSE`
+
+The check function must take the `value` as first argument and always return either `TRUE` or `FALSE`. This makes it a bit different from normal tests and is also why I am trying to avoid the word test here.
+
+There are two ways to write a check:
+
+### Reference a function by name 
+
+```yaml
+---
+title: My Document
+output: html_document
+params:
+  fruit: 
+    value: Apple
+    check: is.character
+---
+```
+
+### Declare a function
+
+```yaml
+---
+title: My Document
+output: html_document
+params:
+  fruit: 
+    value: Apple
+    check: \(x){is.character(x)}
+---
+```
+
+Or the long way:
+
+```yaml
+---
+title: My Document
+output: html_document
+params:
+  fruit: 
+    value: Apple
+    check: function(x){is.character(x)}
+---
+```
+
+## I need to run multiple checks or need to test for something more complicated!
+
+I am trying to keep things intentionally simple so that the headers remain human readable.
+
+For things that don't fit one line, I would declare the function in a package and run
+
+```yaml
+---
+title: My Document
+output: html_document
+params:
+  fruit: 
+    value: Apple
+    check: my_package::my_check
+---
+```

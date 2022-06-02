@@ -1,0 +1,18 @@
+---
+title: "Parameter Checks"
+author: "Benjamin Schwetz"
+date: "5/31/2022"
+output: html_document
+params:
+  fruit:
+    value: Orange
+    check: is.character
+  other:
+    value: some
+---
+
+```{r}
+params$fruit
+params$other
+```
+

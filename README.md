@@ -1,0 +1,162 @@
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# rmarkdown.checks
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+With rmarkdown.checks you can validate input for parameterized Rmd files
+before trying to knit them.
+
+## Why
+
+You are using parameters on your Rmarkdown documents but you are not
+using RStudio’s interactive user interface, so [these
+instructions](https://bookdown.org/yihui/rmarkdown/params-knit.html)
+don’t apply.
+
+You want to put constrains on the parameters supplied and have good
+reason wanting to test for them before trying to knit the report
+(e.g. because knitting happens on another machine).
+
+## Installation
+
+``` r
+remotes::install_github("benjaminschwetz/rmarkdown.checks")
+```
+
+## Example
+
+A `Rmd` document with the following header:
+
+``` yaml
+---
+title: "Parameter Checks"
+author: "Benjamin Schwetz"
+date: "5/31/2022"
+output: html_document
+params:
+  fruit:
+    value: Orange
+    check: is.character
+  other:
+    value: some
+---
+```
+
+can be inspected like so:
+
+``` r
+library(rmarkdown.checks)
+check_parameters(
+  rmarkdown_document = system.file("extdata", "sample.Rmd", package = "rmarkdown.checks"),
+    params = list(fruit = "Apple"),
+    allow_NULL = FALSE,
+    allow_NA = FALSE,
+    verbose = TRUE
+)
+#> No checks supplied for parameters: other
+#> [1] TRUE
+```
+
+## Background
+
+Rmarkdown reports can be parameterised using the yaml header. The simple
+way is
+
+``` yaml
+---
+title: My Document
+output: html_document
+params:
+  fruit: Apple
+---
+```
+
+Alternatively, values can be declared using a `value` subitem like so:
+
+``` yaml
+---
+title: My Document
+output: html_document
+params:
+  fruit: 
+    value: Apple
+---
+```
+
+Additional arbitrary subitems are also allowed. This is used for
+[customizing the interactive user
+interface](https://bookdown.org/yihui/rmarkdown/params-knit.html)
+
+In this package, we use this feature to declare a `check` subitems to
+declare test functions:
+
+## Writing `check` functions
+
+### `check` functions must evaluate to `TRUE` or `FALSE`
+
+The check function must take the `value` as first argument and always
+return either `TRUE` or `FALSE`. This makes it a bit different from
+normal tests and is also why I am trying to avoid the word test here.
+
+There are two ways to write a check:
+
+### Reference a function by name
+
+``` yaml
+---
+title: My Document
+output: html_document
+params:
+  fruit: 
+    value: Apple
+    check: is.character
+---
+```
+
+### Declare a function
+
+``` yaml
+---
+title: My Document
+output: html_document
+params:
+  fruit: 
+    value: Apple
+    check: \(x){is.character(x)}
+---
+```
+
+Or the long way:
+
+``` yaml
+---
+title: My Document
+output: html_document
+params:
+  fruit: 
+    value: Apple
+    check: function(x){is.character(x)}
+---
+```
+
+## I need to run multiple checks or need to test for something more complicated!
+
+I am trying to keep things intentionally simple so that the headers
+remain human readable.
+
+For things that don’t fit one line, I would declare the function in a
+package and run
+
+``` yaml
+---
+title: My Document
+output: html_document
+params:
+  fruit: 
+    value: Apple
+    check: my_package::my_check
+---
+```
