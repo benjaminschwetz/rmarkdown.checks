@@ -83,6 +83,12 @@ check_parameters <- function(
     return(FALSE)
   }
   } else {
-
+    if(verbose){
+      not_found <- names(params)[!names(params) %in% names(extracted_params)]
+      message("The supplied parameters ",
+              paste(not_found, collapse = ", "),
+              " were not found in the yaml header.")
+    }
+    return(FALSE)
   }
 }
